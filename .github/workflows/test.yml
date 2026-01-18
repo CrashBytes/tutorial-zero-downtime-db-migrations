@@ -65,7 +65,15 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
         pip install pytest pytest-cov pytest-asyncio psycopg2-binary
-    
+
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        for i in {1..30}; do
+          pg_isready -h localhost -p 5432 && pg_isready -h localhost -p 5433 && break
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+
     - name: Run tests with pytest
       env:
         PYTHONPATH: ${{ github.workspace }}
